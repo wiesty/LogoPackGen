@@ -27,9 +27,6 @@ To enable CairoSVG, you'll need the GTK runtime environment. You can install it 
 
 Make sure you have Python installed (version 3.6+). Then, install the required Python packages using pip:
 
-bash
-
-Code kopieren
 
     pip install cairosvg pillow python-dotenv 
 
@@ -37,9 +34,6 @@ Code kopieren
 
 All configurations are done via a `.env` file. Here’s a sample configuration:
 
-bash
-
-Code kopieren
 
     SVG_FILE=logo.svg
     FILE_PREFIX=MyLogo
@@ -57,10 +51,6 @@ Code kopieren
 ## ⚙️ Usage
 
 Run the script using Python:
-
-bash
-
-Code kopieren
 
     python main.py 
 
