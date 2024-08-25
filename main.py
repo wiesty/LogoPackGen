@@ -32,7 +32,6 @@ os.makedirs(favicon_space_folder, exist_ok=True)
 social_media_folder = os.path.join(output_folder, f'{file_prefix}_social_media')
 os.makedirs(social_media_folder, exist_ok=True)
 
-
 shutil.copyfile(svg_file, os.path.join(normal_folder, f'{file_prefix}_{logo_variant}.svg'))
 
 def update_progress(current, total, message="Processing"):
@@ -64,11 +63,9 @@ def create_raster_versions(svg_path, output_folder, dpis=[72, 144, 300]):
                 background.paste(img, mask=img.split()[3])
                 background.save(output_path, 'JPEG', dpi=(dpi, dpi), quality=100)
             elif fmt == 'png' or fmt == 'webp':
-                background = Image.new('RGB', img.size, jpg_background_color)
-                background.paste(img, mask=img.split()[3])
-                background.save(output_path, fmt.upper(), dpi=(dpi, dpi))
+                img.save(output_path, fmt.upper(), dpi=(dpi, dpi))
 
-def create_one_by_one_versions(svg_path, output_folder, sizes=[128, 256, 512, 2048, 4096]):
+def create_one_by_one_versions(svg_path, output_folder, sizes=[128, 512, 2048, 4096]):
     total_steps = len(sizes) * 2  
     current_step = 0
     
@@ -94,12 +91,10 @@ def create_one_by_one_versions(svg_path, output_folder, sizes=[128, 256, 512, 20
                 background.paste(new_img, mask=alpha)
                 background.save(fmt_path, 'JPEG', dpi=(300, 300), quality=100)
             elif fmt == 'webp':
-                background = Image.new('RGB', new_img.size, jpg_background_color)
-                background.paste(new_img, mask=new_img.split()[3])
-                background.save(fmt_path, 'WEBP', dpi=(300, 300))
+                new_img.save(fmt_path, 'WEBP', dpi=(300, 300)) 
 
 def create_favicon_pack(svg_path, nospace_folder, space_folder):
-    favicon_sizes = [16, 32, 48, 64, 128, 256, 512, 1024]
+    favicon_sizes = [16, 32, 48, 64, 128]
     total_steps = len(favicon_sizes) * 3
     current_step = 0
     
@@ -107,7 +102,6 @@ def create_favicon_pack(svg_path, nospace_folder, space_folder):
         current_step += 1
         update_progress(current_step, total_steps, "Rendering favicons")
         
-        # No space version
         output_path = os.path.join(nospace_folder, f'{file_prefix}_{logo_variant}_favicon_{size}px.png')
         cairosvg.svg2png(url=svg_path, write_to=output_path, output_width=size, output_height=size)
         
@@ -118,12 +112,11 @@ def create_favicon_pack(svg_path, nospace_folder, space_folder):
         webp_path = os.path.join(nospace_folder, f'{file_prefix}_{logo_variant}_favicon_{size}px.webp')
         img.save(webp_path, 'WEBP')
 
-        # Space version
         new_size = int(size * 1.15)
         output_path = os.path.join(space_folder, f'{file_prefix}_{logo_variant}_favicon_{size}px.png')
         cairosvg.svg2png(url=svg_path, write_to=output_path, output_width=size, output_height=size)
         img = Image.open(output_path)
-        new_img = Image.new('RGBA', (new_size, new_size), (255, 255, 255, 0))
+        new_img = Image.new('RGBA', (new_size, new_size), (255, 255, 255, 0)) 
         new_img.paste(img, ((new_size - size) // 2, (new_size - size) // 2))
         new_img.save(output_path)
 
@@ -191,13 +184,13 @@ def create_social_media_versions(svg_path, output_folder, dpis=[72, 96]):
 
             for fmt in ['jpg', 'webp']:
                 fmt_path = os.path.join(output_folder, f'{file_prefix}_{logo_variant}_{name}_{size[0]}x{size[1]}_{dpi}dpi.{fmt}')
-                background = Image.new('RGB', new_img.size, jpg_background_color)
+                background = Image.new('RGB', new_img.size, jpg_background_color) if fmt == 'jpg' else new_img.convert('RGB')
                 alpha = new_img.split()[3]
                 background.paste(new_img, mask=alpha)
                 if fmt == 'jpg':
                     background.save(fmt_path, 'JPEG', dpi=(dpi, dpi), quality=100)
                 else:
-                    background.save(fmt_path, 'WEBP', dpi=(dpi, dpi))
+                    new_img.save(fmt_path, 'WEBP', dpi=(dpi, dpi))
 
 if __name__ == "__main__":
     convert_svg_to_formats(svg_file, normal_folder)
